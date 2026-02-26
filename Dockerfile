@@ -10,7 +10,7 @@ COPY main.go index.html ./
 
 # 自动初始化并下载依赖
 RUN go mod init proxy-node && \
-    go get nhooyr.io/websocket && \
+    go get github.com/gorilla/websocket && \
     go mod tidy
 
 # 编译成 server 二进制文件
