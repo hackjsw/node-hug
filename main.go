@@ -30,7 +30,7 @@ var (
 	RoutePath    = getEnv("WSPATH", AppKey[:8])
 	DataPath     = getEnv("SUB_PATH", "lei")
 	WorkerId     = getEnv("NAME", "hfgo")
-	ListenPort   = getEnv("PORT", "3000")
+	ListenPort   = getEnv("PORT", "7860")
 
 	// 内部运行状态变量
 	envMeta      string
