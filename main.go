@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"crypto/sha256"
-	"embed"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/hex"
