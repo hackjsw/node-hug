@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"crypto/sha256"
+	"embed"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/hex"
@@ -14,7 +15,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -22,15 +22,19 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+//go:embed index.html
+var indexHTML []byte
+
 // ======================= 基础设定区 =======================
 var (
-	AppKey       = getEnv("UUID", "c80d8f80-7148-4764-8c64-5e629a47bee9")
+	AppKey       = getEnv("UUID", "5efabea4-f6d4-91fd-b8f0-17e004c89c60")
 	ServDomain   = getEnv("DOMAIN", "1234.abc.com")
 	AutoTask     = getEnvBool("AUTO_ACCESS", false)
 	RoutePath    = getEnv("WSPATH", AppKey[:8])
-	DataPath     = getEnv("SUB_PATH", "lei")
-	WorkerId     = getEnv("NAME", "hfgo")
-	ListenPort   = getEnv("PORT", "3000")
+	DataPath     = getEnv("SUB_PATH", "sub")
+	WorkerId     = getEnv("NAME", "")
+	// Hugging Face 默认对外开放 7860 端口，这里将默认值改为 7860
+	ListenPort   = getEnv("PORT", "7860") 
 
 	// 内部运行状态变量
 	envMeta      string
@@ -81,17 +85,14 @@ func baseHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 处理常规访问请求
 	if r.URL.Path == "/" {
-		filePath := filepath.Join(".", "index.html")
-		content, err := os.ReadFile(filePath)
-		if err != nil {
-			w.Header().Set("Content-Type", "text/html")
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("Service Worker Active"))
-			return
-		}
-		w.Header().Set("Content-Type", "text/html")
+		// 直接从打包进内存的二进制中读取 HTML，再也不依赖外部磁盘文件
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
-		w.Write(content)
+		if len(indexHTML) > 0 {
+			w.Write(indexHTML)
+		} else {
+			w.Write([]byte("Service Worker Active (HTML missing)"))
+		}
 
 	} else if r.URL.Path == "/"+DataPath {
 		envMutex.RLock()
