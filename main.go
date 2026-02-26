@@ -167,6 +167,11 @@ func handleProtocolAlpha(adapter *streamAdapter, buffer []byte) bool {
 		return false
 	}
 
+	// 【修复点 1】：提取 1 个字节的指令类型 (1 代表 TCP，2 代表 UDP)
+	command := buffer[i]
+	i += 1 
+
+	// 【修复点 2】：现在 i 才是真正指向端口的起始位置
 	targetIdx := binary.BigEndian.Uint16(buffer[i : i+2])
 	i += 2
 	atyp := buffer[i]
@@ -195,8 +200,13 @@ func handleProtocolAlpha(adapter *streamAdapter, buffer []byte) bool {
 
 	payload := buffer[i:]
 
-	// 响应握手信号
+	// 响应 VLESS 握手信号
 	adapter.Write([]byte{version, 0})
+
+	// 仅处理 TCP 流量 (command == 1)
+	if command != 1 {
+		return false
+	}
 
 	resolvedNode := lookupResource(targetNode)
 	backend, err := net.Dial("tcp", fmt.Sprintf("%s:%d", resolvedNode, targetIdx))
