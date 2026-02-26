@@ -3,18 +3,17 @@
 # ==========================================
 FROM golang:1.21-alpine AS builder
 
-# 【关键修改】不要使用 /tmp，改为 /app
 WORKDIR /app
 
-# 复制源码到容器内
-COPY . .
+# 【精准复制】只把我们要编译的 Go 源文件复制进来
+COPY main.go .
 
-# 初始化模块并下载依赖包
+# 自动初始化并下载依赖
 RUN go mod init proxy-node && \
     go get nhooyr.io/websocket && \
     go mod tidy
 
-# 编译生成名为 server 的二进制文件
+# 编译成 server 二进制文件
 RUN go build -o server main.go
 
 # ==========================================
@@ -22,14 +21,16 @@ RUN go build -o server main.go
 # ==========================================
 FROM alpine:3.20
 
-# 【关键修改】这里也保持一致，改为 /app
 WORKDIR /app
 
-# 安装基础证书和工具
+# 安装基础的网络请求证书和调试工具
 RUN apk update && apk add --no-cache ca-certificates bash curl tzdata
 
-# 从 builder 阶段把编译好的程序拷过来
+# 【精准复制 1】从第一阶段把编译好的程序拿过来
 COPY --from=builder /app/server .
+
+# 【精准复制 2】从你的 GitHub 仓库里把网页文件拿过来
+COPY index.html .
 
 EXPOSE 3000
 
