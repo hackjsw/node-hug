@@ -29,9 +29,11 @@ RUN apk update && apk add --no-cache ca-certificates bash curl tzdata
 # 从第一阶段把编译好的 "server" 文件拿过来，其余的源码和 Go 环境全丢弃
 COPY --from=builder /tmp/server .
 
-EXPOSE 7860
+# 关键修改：为 HF 创建特定用户并赋予权限
+RUN adduser -D -u 1000 myuser
+RUN chown -R myuser:myuser /app && chmod +x /app/server
+USER 1000
 
-# 赋予执行权限并启动
-RUN chmod +x server
+EXPOSE 7860
 
 CMD ["./server"]
