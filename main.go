@@ -34,7 +34,7 @@ var (
 	DataPath     = getEnv("SUB_PATH", "sub")
 	WorkerId     = getEnv("NAME", "")
 	// Hugging Face 默认对外开放 7860 端口，这里将默认值改为 7860
-	ListenPort   = getEnv("PORT", "7860") 
+	ListenPort   = getEnv("PORT", "3000") 
 
 	// 内部运行状态变量
 	envMeta      string
