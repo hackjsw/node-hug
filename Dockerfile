@@ -29,7 +29,7 @@ RUN apk update && apk add --no-cache ca-certificates bash curl tzdata
 # 从第一阶段把编译好的 "server" 文件拿过来，其余的源码和 Go 环境全丢弃
 COPY --from=builder /tmp/server .
 
-EXPOSE 3000
+EXPOSE 7860
 
 # 赋予执行权限并启动
 RUN chmod +x server
