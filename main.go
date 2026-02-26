@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/binary"
+	_ "embed"       // <--- 就是少了这一行！下划线和空格不能漏
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
